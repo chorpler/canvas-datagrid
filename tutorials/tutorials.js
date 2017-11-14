@@ -391,7 +391,7 @@ window.tutorials['Canvas fill styles|An example of using complex fill styles on 
     gradient.addColorStop(0, 'dodgerblue');
     gradient.addColorStop(1, 'chartreuse');
     grid.style.cellBackgroundColor = gradient;
-    grid.style.backgroundColor = gradient;
+    grid.style.gridBackgroundColor = gradient;
 };
 window.tutorials['Alter startup styles|Change the styles during instantiation.'] = function (parentNode) {
     var grid = canvasDatagrid({
@@ -737,7 +737,7 @@ window.tutorials['Multiple filters|Create filters on more than one column at a t
     }
     // add the data to the grid
     grid.data = data.concat(grid.data);
-    grid.setFilter('quick', /the/i);
+    grid.setFilter('quick', '/the/i');
     grid.setFilter('brown', 'quick');
 };
 window.tutorials['Draw a picture|Draw a picture into a cell.  First hook into <i>rendertext</i> to show the text "No Image" text if there is no image.  Then hook into <i>afterrendercell</i> to actually create an image element, hook into the image load event and draw the image once it\'s loaded.'] = function (parentNode) {

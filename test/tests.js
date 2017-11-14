@@ -91,6 +91,8 @@
     }
     function assertPxColorFn(grid, x, y, expected) {
         var d, match, e;
+        x = x * window.devicePixelRatio;
+        y = y * window.devicePixelRatio;
         return function (callback) {
             function f() {
                 d = grid.ctx.getImageData(x, y, 1, 1).data;
@@ -110,7 +112,7 @@
             if (!callback) {
                 return f();
             }
-            requestAnimationFrame(f);
+            f();
         };
     }
     function assertPxColor(grid, x, y, expected, callback) {
@@ -244,7 +246,7 @@
                 it('Should create an instance of datagrid', function (done) {
                     var grid = g({test: this.test});
                     assertIf(!grid, 'Expected a grid instance, instead got something false');
-                    grid.style.backgroundColor = c.y;
+                    grid.style.gridBackgroundColor = c.y;
                     assertPxColor(grid, 80, 32, c.y, done);
                 });
                 it('Should create, then completely annihilate the grid.', function (done) {
@@ -305,7 +307,7 @@
                             data: [{a: blocks}],
                             component: true
                         });
-                        grid.style.backgroundColor = c.white;
+                        grid.style.gridBackgroundColor = c.white;
                         grid.schema = [{name: 'a', width: 30}];
                         assertIf(grid.data.length !== 1,
                             'Expected to see data in the interface.');
@@ -360,24 +362,6 @@
                     });
                     grid.style.activeCellBackgroundColor = c.black;
                     assertPxColor(grid, 100, 32, c.black, done);
-                });
-                it('Each style setter should call draw 1 time.', function (done) {
-                    var grid = g({
-                            test: this.test,
-                            data: smallData()
-                        }),
-                        styleKeys = Object.keys(grid.style),
-                        eventCount = 0;
-                    grid.addEventListener('beforedraw', function () {
-                        eventCount += 1;
-                    });
-                    async.eachSeries(styleKeys, function (s, cb) {
-                        grid.style[s] = grid.style[s];
-                        setTimeout(cb, 1);
-                    }, function () {
-                        done(assertIf(eventCount !== styleKeys.length,
-                            'Wrong number of draw invocations on style setters.  Expected %n got %n.', styleKeys.length, eventCount));
-                    });
                 });
             });
             describe('Data interface', function () {
@@ -559,7 +543,7 @@
                         test: this.test,
                         data: [{d: '123456', e: '123456'}],
                         style: {
-                            backgroundColor: c.b
+                            gridBackgroundColor: c.b
                         }
                     });
                     grid.autosize();
@@ -570,7 +554,7 @@
                         test: this.test,
                         data: [{d: '123456', e: '123456'}]
                     });
-                    grid.style.backgroundColor = c.b;
+                    grid.style.gridBackgroundColor = c.b;
                     assertPxColor(grid, 200, 70, c.b, done);
                 });
                 it('Add an attribute to the attribute setter', function (done) {
@@ -1852,7 +1836,7 @@
                         test: this.test,
                         data: smallData(),
                         style: {
-                            columnWidth: 50
+                            cellWidth: 50
                         }
                     });
                     grid.addEventListener('rendercell', function (e) {
@@ -1878,7 +1862,7 @@
                         borderDragBehavior: 'resize',
                         allowColumnResizeFromCell: true,
                         style: {
-                            columnWidth: 50
+                            cellWidth: 50
                         }
                     });
                     grid.addEventListener('rendercell', function (e) {
@@ -1901,7 +1885,7 @@
                         test: this.test,
                         data: smallData(),
                         style: {
-                            columnWidth: 50
+                            cellWidth: 50
                         }
                     });
                     grid.addEventListener('rendercell', function (e) {
@@ -1926,7 +1910,7 @@
                         allowRowResizeFromCell: true,
                         borderDragBehavior: 'resize',
                         style: {
-                            columnWidth: 50
+                            cellWidth: 50
                         }
                     });
                     grid.addEventListener('rendercell', function (e) {
@@ -2191,7 +2175,7 @@
                         test: this.test,
                         data: smallData(),
                         style: {
-                            columnWidth: 50
+                            cellWidth: 50
                         }
                     });
                     grid.selectColumn(0);
@@ -2380,7 +2364,9 @@
                         assertIf(e.treeGrid === undefined, 'Expected a grid here.');
                         e.treeGrid.style.cornerCellBackgroundColor = c.y;
                         assertPxColor(grid, 10, 34, c.fu, function () {
-                            assertPxColor(grid, 60, 60, c.y, done);
+                            setTimeout(function () {
+                                assertPxColor(grid, 60, 60, c.y, done);
+                            }, 3);
                         });
                     });
                     grid.style.treeArrowColor = c.fu;
@@ -2415,7 +2401,7 @@
                     });
                     setTimeout(function () {
                         assertPxColor(grid, 130, 60, c.b, done);
-                    }, 5);
+                    }, 30);
                 });
                 it('Should display a new row', function (done) {
                     var grid = g({
@@ -2480,7 +2466,7 @@
                         click(grid.canvas, 67, 10);
                         setTimeout(function () {
                             // make the test look less ugly
-                            //grid.parentNode.parentNode.parentNode.removeChild(grid.parentNode.parentNode);
+                            // grid.parentNode.parentNode.parentNode.removeChild(grid.parentNode.parentNode);
                             grid.dispose();
                             setTimeout(function () {
                                 grid = g(a);
@@ -2563,11 +2549,12 @@
                         test: this.test,
                         data: makeData(3, 3, function (y, x) { return x + ':' + y; }),
                         style: {
-                            columnWidth: 50
+                            cellWidth: 50
                         }
                     });
                     setTimeout(function () {
                         grid.focus();
+                        marker(grid, 67, 10);
                         mousemove(grid.canvas, 67, 10);
                         mousedown(grid.canvas, 67, 10);
                         mousemove(grid.canvas, 140, 10, grid.canvas);
@@ -2618,7 +2605,7 @@
                         test: this.test,
                         data: smallData(),
                         style: {
-                            columnWidth: 50,
+                            cellWidth: 50,
                             reorderMarkerBackgroundColor: c.r,
                             reorderMarkerBorderWidth: 4,
                             reorderMarkerBorderColor: c.y,
@@ -2648,7 +2635,7 @@
                         data: smallData(),
                         allowRowReordering: true,
                         style: {
-                            columnWidth: 50
+                            cellWidth: 50
                         }
                     });
                     setTimeout(function () {
@@ -2674,7 +2661,7 @@
                         data: smallData(),
                         allowRowReordering: true,
                         style: {
-                            columnWidth: 50,
+                            cellWidth: 50,
                             reorderMarkerBackgroundColor: c.y,
                             reorderMarkerBorderWidth: 4,
                             reorderMarkerBorderColor: c.fu,
@@ -2771,7 +2758,7 @@
                         data: smallData(),
                         columnHeaderClickBehavior: 'select',
                         style: {
-                            columnWidth: 50
+                            cellWidth: 50
                         }
                     });
                     marker(grid, 40, 12);
@@ -2789,7 +2776,7 @@
                         data: makeData(3, 3, function (y, x) { return x + ':' + y; }),
                         columnHeaderClickBehavior: 'select',
                         style: {
-                            columnWidth: 50
+                            cellWidth: 50
                         }
                     });
                     marker(grid, 40, 12);

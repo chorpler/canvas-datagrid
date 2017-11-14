@@ -179,6 +179,7 @@ function g() {
 
     // create a spreadsheet
     var grid = canvasDatagrid({
+            name: 'blah',
             borderDragBehavior: 'move',
             showPaste: true,
             parentNode: document.getElementById('grid'),
@@ -188,7 +189,7 @@ function g() {
             showRowHeaders: true,
             snapToRow: false,
             debug: false,
-            showPerformance: false,
+            showPerformance: true,
             allowFreezingRows: false,
             tree: true,
             allowFreezingColumns: false
@@ -197,8 +198,6 @@ function g() {
         y,
         d = [],
         n;
-
-    grid.style.columnWidth = 70;
     function colName(n) {
         var ordA = 'a'.charCodeAt(0),
             ordZ = 'z'.charCodeAt(0),
@@ -210,9 +209,9 @@ function g() {
         }
         return s;
     }
-    for (x = 0; x < 10000; x += 1) {
+    for (x = 0; x < 500; x += 1) {
         d[x] = {};
-        for (y = 0; y < 60; y += 1) {
+        for (y = 0; y < 30; y += 1) {
             n = colName(y).toUpperCase();
             d[x][n] = (x + 1) + ', ' + n;
         }
@@ -220,7 +219,9 @@ function g() {
     grid.attributes.columnHeaderClickBehavior = 'select';
     grid.style.columnHeaderCellHorizontalAlignment = 'center';
     grid.style.borderCollapse = 'collapse';
-    grid.style.backgroundColor = '#FF00FF';
+    grid.style.cellWidth = 50;
+    // grid.style.cellBackgroundColor = 'red';
+    // grid.style.width = '50%';
     grid.data = d;
     grid.addEventListener('expandtree', function (e) {
         e.treeGrid.data = [
